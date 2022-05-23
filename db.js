@@ -22,6 +22,13 @@ const User = conn.define('user', {
   password: STRING,
 });
 
+const Note = conn.define('note', {
+  text: STRING,
+})
+
+Note.belongsTo(User);
+User.hasMany(Note);
+
 User.byToken = async (token) => {
   try {
     const payload = jwt.verify(token, process.env.JWT);
@@ -61,14 +68,19 @@ const syncAndSeed = async () => {
     { username: 'moe', password: 'moe_pw' },
     { username: 'larry', password: 'larry_pw' },
   ];
+
+
   const [lucy, moe, larry] = await Promise.all(
     credentials.map((credential) => User.create(credential))
   );
-<<<<<<< HEAD
-  console.log('lucy pw', lucy.password)
-=======
 
->>>>>>> d6c7825b93ab1eb73984699ba717d37deb1cea2b
+
+  const notes = [ { text: 'hello world'}, { text: 'reminder to buy groceries'}, { text: 'reminder to do laundry'} ];
+  const [note1, note2, note3] = await Promise.all(notes.map( note => Note.create(note)));
+  await lucy.setNotes(note1);
+  await moe.setNotes([note2, note3]);
+
+
   return {
     users: {
       lucy,
@@ -78,24 +90,15 @@ const syncAndSeed = async () => {
   };
 };
 
-<<<<<<< HEAD
-User.beforeCreate(async(user, options) => {
-  const hashed = await bcrypt.hash(user.password, 5)
-  user.password = hashed;
-
-
-  console.log('here', user.password)
-})
-=======
 User.beforeCreate(async (user) => {
   const hashed = await bcrypt.hash(user.password, 5);
   user.password = hashed;
 });
->>>>>>> d6c7825b93ab1eb73984699ba717d37deb1cea2b
 
 module.exports = {
   syncAndSeed,
   models: {
     User,
+    Note,
   },
 };
