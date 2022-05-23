@@ -62,6 +62,7 @@ const syncAndSeed = async()=> {
   const [lucy, moe, larry] = await Promise.all(
     credentials.map( credential => User.create(credential))
   );
+  console.log('lucy pw', lucy.password)
   return {
     users: {
       lucy,
@@ -71,12 +72,12 @@ const syncAndSeed = async()=> {
   };
 };
 
-User.beforeCreate((user) => {
-  bcrypt.hash(user.password, 5, function(err,hash) {
-    console.log(err,hash)
+User.beforeCreate(async(user, options) => {
+  const hashed = await bcrypt.hash(user.password, 5)
+  user.password = hashed;
 
-  })
 
+  console.log('here', user.password)
 })
 
 module.exports = {
