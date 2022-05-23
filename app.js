@@ -32,11 +32,13 @@ app.use((err, req, res, next)=> {
 
 app.get('/api/users/:id/notes', async(req, res, next)=> {
   try {
+    const userInfo = User.byToken(req.headers.authorization)
+    if (userInfo.id === req.params.id){
     const notes = await Note.findAll({where: {
       userId: req.params.id
     }});
     res.send(notes);
-
+  }
   }
   catch(ex){
     next(ex);
